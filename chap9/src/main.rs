@@ -1,13 +1,14 @@
-
 use std::io;
 use std::io::Read;
 use std::fs::File;
 
+#[allow(unused_must_use)]
 fn main(){
 	demo1();
 	demo2();
 	read_username_from_file();
 	read_username_from_file_simple();
+	read_username_from_file_simple2();
 }
 
 fn demo1(){
@@ -55,6 +56,7 @@ fn read_username_from_file_simple() -> Result<String,io::Error>{
 	Ok(s)
 }
 
+#[allow(unused_must_use)]
 fn read_username_from_file_simple2() -> Result<String,io::Error>{
 	let mut s = String::new();
 	File::open("hello.txt")?.read_to_string(&mut s);
