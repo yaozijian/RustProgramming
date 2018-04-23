@@ -305,3 +305,162 @@ fn main() {
     assert!(equal_to_x(y));
 }
 ```
+
+## 2 使用迭代器处理元素序列
+
+### 2.1 从集合类型创建迭代器
+
+通常集合类型提供了三个获取迭代器的方法
+
+* ```iter()```：生成不可变引用的迭代器
+* ```iter_mut()```：生成可变引用的迭代器
+* ```into_iter()```：获取所有权，返回拥有所有权的迭代器
+
+通常在for循环中使用迭代器：
+
+```rust
+fn step1(){
+    let v = vec![1,2,3];
+    {
+        let i = v.iter();
+        for x in i{
+            println!("{}",x);
+        }
+    }
+    // 注意: 这个for循环会获取v的所有权,结果:
+    // 1 上面的 for 循环必须用大括号包围,否则上面的v.iter()对v进行不可变借用,而这里要获取v的所有权，这是不允许的
+    // 2 下面的 println! 语句无法使用 v，因为v的所有权已经被for语句获取，for之后v已经无效
+    for x in v{
+        println!("{}",x);
+    }
+
+    //println!("{:?}",v);
+}
+```
+
+<font color="red">
+
+* 注意：直接对集合类型示例v使用for循环时，相当于```for i in v.into_iter()```
+* 而```v.into_iter()```会获取v的所有权，即v的所有权被转移到for语句中
+* 结果是：for语句之后无法再使用v，因为所有权已经被转移，v已经无效
+
+</font>
+
+### 2.2 Iterator
+
+* 所有迭代器都实现了std::iter::Iterator这个特性
+
+```rust
+trait Iterator{
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+}
+```
+
+* 上述Item和Self::Item定义了Iterator特性的关联类型(associated type)
+* 通常通过for循环简介调用next()方法，但是也可以直接调用
+
+```rust
+fn iterator_demonstration() {
+    let v1 = vec![1, 2, 3];
+    let mut v1_iter = v1.iter();
+    assert_eq!(v1_iter.next(), Some(&1));
+    assert_eq!(v1_iter.next(), Some(&2));
+    assert_eq!(v1_iter.next(), Some(&3));
+    assert_eq!(v1_iter.next(), None);
+}
+```
+
+#### 2.2.1 消费适配器
+
+* 除了next方法，Iterator还定义了其他一些调用next实现其功能的方法，这些方法称作消费适配器
+* 注意：消费适配器通常会获取迭代器的所有权，调用消费适配器方法后，迭代器变量就无效了
+* 常用的消费适配器
+  * ```fn count(self) -> usize```
+  * ```fn last(self) -> Option<Self::Item>```
+  * ```fn nth(self,n: usize) -> Option<Self::Item>```
+  * ```fn for_each<F>(self,f:F) where F : FnMut(Self::Item)```
+  * ```fn all<F>(self,f:F) -> bool where F : Fn(Self::Item) -> bool```
+  * ```fn any<F>(self,f:F) -> bool where F : Fn(Self::Item) -> bool```
+  * ```fn find<F>(&mut self,predicate:F) -> Option<Self::Item> where F : FnMut(&Self::Item) -> bool```
+  * ```fn position<P>(&mut self,predicate:P) -> Option<usize> where P : FnMut(Self::Item) -> bool```
+  * ```fn rposition<P>(&mut self,predicate:P) -> Option<usize> where P : FnMut(Self::Item) -> bool```
+  * ```fn max(self) -> Option<Self::Item> where Self::Item : Ord```
+  * ```fn min(self) -> Option<Self::Item> where Self::Item : Ord```
+  * ```fn sum<S>(self) -> S where S: Sum<Self::Item>```
+* 示例
+
+```rust
+fn iterator_sum() {
+    let v1 = vec![1, 2, 3];
+    let v1_iter = v1.iter();
+    let total: i32 = v1_iter.sum();
+    assert_eq!(total, 6);
+}
+```
+
+#### 2.2.2 迭代适配器
+
+* Iterator特性定义了一些方法，可以返回其他不同类型的迭代器，这些方法称作迭代适配器
+* 注意：迭代适配器通常会获取迭代器的所有权，调用迭代适配器方法后，迭代器变量就无效了
+* 注意：迭代器是惰性的，如果不为返回的迭代器调用一个消费适配器方法，则编译器会给出警告
+* 常用的迭代适配器
+  * ```fn map<B,F>(self,f:F) -> Map<Self,F> where F:FnMut(Self::Item) -> B```
+  * ```fn step_by(self,step : usize) -> StepBy<Self>```
+  * ```fn chain<U>(self, other: U) -> Chain<Self, <U as IntoIterator>::IntoIter> where U: IntoIterator<Item = Self::Item>```
+  * ```fn zip(self)```
+  * ```fn filter(self)```
+  * ```fn filter_map(self)```
+  * ```fn peekable(self)```
+  * ```fn skip_while(self)```
+  * ```fn take_while(self)```
+  * ```fn skip(self,n:usize)```
+  * ```fn task(self,n:usize)```
+* 示例
+
+```rust
+let v1: Vec<i32> = vec![1, 2, 3];
+let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+assert_eq!(v2, vec![2, 3, 4]);
+```
+
+### 2.3 通过实现Iterator特性来创建自定义迭代器
+
+```rust
+struct Counter{
+    count : u32,
+}
+
+impl Counter {
+    fn new() -> Counter{
+        Counter{count: 0}
+    }
+}
+
+impl Iterator for Counter{
+    type Item = u32;
+    fn next(&mut self) -> Option<u32>{
+        if self.count < 5{
+            self.count += 1;
+            Some(self.count)
+        }else{
+            None
+        }
+    }
+}
+
+let sum : u32 = Counter::new().zip(Counter::new().skip(1))
+                .map(|(a,b)|a*b)
+                .filter(|x| x % 3 == 0)
+                .sum();
+assert_eq!(sum,18);
+```
+
+
+
+
+
+
+
+
+
