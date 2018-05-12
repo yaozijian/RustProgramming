@@ -57,3 +57,45 @@ license = "MIT OR Apache-2.0"
 * 使用cargo publish命令发布包到crates.io网站，发布是永久的，不能覆盖或者删除已经发布的版本
 * 使用cargo yark --vers 版本号  来撤销某版本，这并不是从网站删除该版本的数据，只是阻止新的项目使用这个版本
 * 使用cargo yark --vers 版本号 --undo 来撤销撤销操作
+
+## 3 Cargo工作空间
+
+* 工作空间cargo.toml不包含package节，而是包含workspace节，其members字段指示工作空间包含的package
+
+```toml
+[workspace]
+members = [
+  "adder",
+  "add-one",
+]
+```
+
+* 目录结构如下
+
+```toml
+├── Cargo.lock
+├── Cargo.toml
+├── add-one
+│   ├── Cargo.toml
+│   └── src
+│       └── lib.rs
+├── adder
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+└── target
+```
+
+* 执行cargo run命令时，需要用-p参数指示要运行哪个package
+* 类似地，执行cargo test命令时，可以用-p参数指示要为哪个crate运行测试
+* 必须单独为每个crate执行cargo publish命令，不能用一个命令发布工作空间中的所有crate
+* 依赖的外部crate应该写在工作空间的cargo.toml中的dependencies节，而不是写在每个package的cargo.toml中
+
+## 4 使用 cargo install 从 Crates.io 安装二进制文件
+
+* cargo install命令从crates.io网站下载二进制目标文件，安装到Rust安装目录中的bin子目录中
+
+## 5 Cargo自定义扩展命令
+
+* 如果存在系统搜索路径(由PATH环境变量指示)中有cargo-something可执行文件，则可以用cargo something来执行这个文件
+* 执行cargo --list可以列出所有自定义命令
