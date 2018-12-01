@@ -1,17 +1,8 @@
-pub fn add_two(a: i32) -> i32 {
-    internal_adder(a, 2)
-}
+#![allow(dead_code)]
 
-fn internal_adder(a: i32, b: i32) -> i32 {
-    a + b
-}
+extern crate chap11;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn internal() {
-        assert_eq!(4, internal_adder(2, 2));
-    }
+fn main() {
+    println!("{}", chap11::add_two(3, 4));
+	println!("{}", chap11::math::sub_two(3, 4));
 }

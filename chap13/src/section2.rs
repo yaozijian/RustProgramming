@@ -4,7 +4,7 @@ pub fn main(){
 }
 
 fn step1(){
-    
+
     let v = vec![1,2,3];
     {
         let i = v.iter();
@@ -37,7 +37,7 @@ fn step2(){
 
     impl Iterator for Counter{
         type Item = u32;
-        fn next(&mut self) -> Option<u32>{
+        fn next(&mut self) -> Option<Self::Item>{
             if self.count < 5{
                 self.count += 1;
                 Some(self.count)
@@ -47,6 +47,10 @@ fn step2(){
         }
     }
 
+    // zip: (1,2) (2,3) (3,4) (4,5)
+    // map: 2,6,12,20
+    // filter: 6,12
+    // sum: 18
     let sum : u32 = Counter::new().zip(Counter::new().skip(1))
                     .map(|(a,b)|a*b)
                     .filter(|x| x % 3 == 0)

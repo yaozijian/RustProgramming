@@ -17,6 +17,11 @@ fn main() {
 	exercise1::demo();
 
 	lifetime::demo1();
-  lifetime::demo2();
-  lifetime::demo3("a","b");
+	lifetime::demo2();
+	lifetime::demo3("a","b");
+
+	let x = vec![String::from("a")];
+	for y in x.iter(){
+		print!("{}",y);
+	}
 }

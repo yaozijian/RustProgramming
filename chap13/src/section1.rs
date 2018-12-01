@@ -59,13 +59,13 @@ mod step2{
     extern crate std;
 
     pub fn generate_workout(intensity: u32,random_number: u32){
-        
+
         let calc = |intensity|{
             println!("慢速计算中...");
             std::thread::sleep(std::time::Duration::from_secs(2));
             intensity
         };
-        
+
         if intensity < 25{
             println!("做{}个俯卧撑",calc(intensity));
             println!("做{}个仰卧起坐",calc(intensity));
@@ -77,7 +77,7 @@ mod step2{
     }
 }
 
-// 改进3：缓存计算结果以避免不必要的计算
+// 改进3：用Option缓存计算结果以避免不必要的计算
 mod step3{
     extern crate std;
 
@@ -96,10 +96,10 @@ mod step3{
 
         fn value(&mut self,arg: u32) -> u32{
             match self.val{
-                None => { 
+                None => {
                     let v = (self.calc)(arg);
                     self.val = Some(v);
-                    v                    
+                    v
                 },
                 Some(v) => v,
             }
@@ -107,7 +107,7 @@ mod step3{
     }
 
     pub fn generate_workout(intensity: u32,random_number: u32){
-        
+
         let calc = |intensity|{
             println!("慢速计算中...");
             std::thread::sleep(std::time::Duration::from_secs(2));
@@ -126,6 +126,7 @@ mod step3{
     }
 }
 
+// 改进4: 用 HashMap 缓存计算结果
 mod step4{
     extern crate std;
 
@@ -151,7 +152,7 @@ mod step4{
     }
 
     pub fn generate_workout(intensity: u32,random_number: u32){
-        
+
         let calc = |intensity|{
             println!("慢速计算中...");
             std::thread::sleep(std::time::Duration::from_secs(2));
@@ -170,6 +171,7 @@ mod step4{
     }
 }
 
+// 改进5: 使用泛型化的 HashMap<K,V>
 mod step5{
     extern crate std;
 
@@ -195,7 +197,7 @@ mod step5{
     }
 
     pub fn generate_workout(intensity: &str,random_number: u32){
-        
+
         let calc = |info:&str| -> usize{
             println!("慢速计算中: {}...",info);
             std::thread::sleep(std::time::Duration::from_secs(2));

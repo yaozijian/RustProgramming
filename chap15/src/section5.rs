@@ -1,5 +1,7 @@
 use std::cell::RefCell;
 
+use std::fmt::Display;
+
 pub trait Messager {
 	fn send(&self, msg: &str);
 }

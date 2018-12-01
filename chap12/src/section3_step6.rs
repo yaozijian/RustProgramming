@@ -27,9 +27,8 @@ pub fn main() {
 }
 
 fn run(config : Config) -> Result<(),Box<Error>>{
-    let mut file = File::open(config.filename)?;
-    let mut content = String::new();
-    file.read_to_string(&mut content)?;
+	let mut content = String::new();
+	File::open(config.filename)?.read_to_string(&mut content)?;
     println!("With text:\n{}", content);
     Ok(())
 }

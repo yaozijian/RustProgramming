@@ -1,4 +1,6 @@
 
+#![allow(unused_must_use)]
+
 mod section1;
 mod section2;
 mod section3_step1;
@@ -16,6 +18,7 @@ fn main()
 {
     section1::main();
     section2::main();
+	section2::main2();
     section3_step1::main();
     section3_step2::main();
     section3_step3::main();
